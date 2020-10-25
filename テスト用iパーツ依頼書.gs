@@ -41,7 +41,7 @@ function test() {
 // *********  回答フォームの情報を取得  ********** //   
   
   // 共通記入箇所
-  let date = new Date();
+  const date = new Date();
   date = dateFormat(date); // 本日の日付
   // 変数を設定
   const B = getSS(sss, 2);   // 依頼者部署
@@ -65,6 +65,7 @@ function test() {
   const O = getSS(sss,15);   // 作業人数
   const AI = getSS(sss,35);  // 立会い日数
   const AL = getSS(sss,38);  // 立会い人数
+  const AS = getSS(sss,45);  // お客様の状況
   
   // 部品手配依頼
   const checkMark = '✔';
@@ -76,29 +77,29 @@ function test() {
   const T = getSS(sss,20);   // 見積もり番号
   
   // 見積もり＋部品手配依頼
-  var U = getSS(sss,21);   // 依頼種類
-  var V = getSS(sss,22);   // 依頼内容
-  var w = getSS(sss,23);   // 作成期限
-  var W = dateFormat(w);   // 〃（表示を指定）
-  var ap = getSS(sss,42);  // 発送希望納期
-  var AP = dateFormat(ap); // 〃（表示を指定）
-  var X = getSS(sss,24);   // 受注予想確率
-  var Y = getSS(sss,25);   // 作業日
-  var Z = getSS(sss,26);   // 作業日数
-  var AA = getSS(sss,27);  // 作業人数
-  var AB = getSS(sss,28);  // 部品発送
-  var AC = getSS(sss,29);  // 事前連絡
-  var AD = getSS(sss,30);  // 見積もり番号
-  var AJ = getSS(sss,36);  // 立会い日数
-  var AK = getSS(sss,37);  // 立会い人数
+  const U = getSS(sss,21);   // 依頼種類
+  const V = getSS(sss,22);   // 依頼内容
+  const w = getSS(sss,23);   // 作成期限
+  const W = dateFormat(w);   // 〃（表示を指定）
+  const ap = getSS(sss,42);  // 発送希望納期
+  const AP = dateFormat(ap); // 〃（表示を指定）
+  const X = getSS(sss,24);   // 受注予想確率
+  const Y = getSS(sss,25);   // 作業日
+  const Z = getSS(sss,26);   // 作業日数
+  const AA = getSS(sss,27);  // 作業人数
+  const AB = getSS(sss,28);  // 部品発送
+  const AC = getSS(sss,29);  // 事前連絡
+  const AD = getSS(sss,30);  // 見積もり番号
+  const AJ = getSS(sss,36);  // 立会い日数
+  const AK = getSS(sss,37);  // 立会い人数
   
   // 事後見積もり、作成済み見積もり提出依頼
-  var AE = getSS(sss,31);  // 作業費
-  var AF = getSS(sss,32);  // 見積もり番号
-  var AG = getSS(sss,33);  // 部品費
-  var AH = getSS(sss,34);  // ブリッジ番号
-  var AM = getSS(sss,39);  // 備考欄 (事後見積もり）
-  var AN = getSS(sss,40);  // 備考欄 (作成済み見積もりの確認と提出依頼）
+  const AE = getSS(sss,31);  // 作業費
+  const AF = getSS(sss,32);  // 見積もり番号
+  const AG = getSS(sss,33);  // 部品費
+  const AH = getSS(sss,34);  // ブリッジ番号
+  const AM = getSS(sss,39);  // 備考欄 (事後見積もり）
+  const AN = getSS(sss,40);  // 備考欄 (作成済み見積もりの確認と提出依頼）
 
 
 
@@ -146,6 +147,9 @@ function test() {
   
   // *********  見積もり依頼のみの処理  ********** //
   
+  let whitePoints = []; // 取得したデータとデータの書込み箇所を格納（作業立会い日数・人数）
+  let setColorBox = []; // 塗り潰す箇所を格納
+  
   if(H == '見積もり依頼') {
     setColor('H3', "yellow"); // セル「見積」を塗り潰す。
     setSS('I19', K);          // 作成期限
@@ -171,45 +175,32 @@ function test() {
     } else if(I == '部品と作業') {
       setColor('P21', "yellow"); // セル「部品と作業」を塗り潰す。
       setColor('S25', "yellow"); //  立会「平日」を塗り潰す。
-      setSS('W23', N);           // 作業日数
-      setSS('Z23', O);           // 作業人数
-      setSS('W25', AI);          // 立会日数
-      setSS('Z25', AL);          // 立会人数
       
-      if(M == '休日（前泊移動）') {
-        setColor('AA21', "yellow"); // 「前泊あり」を塗り潰す。
-        setColor('S23', "yellow");  // 「休日」塗り潰す。
-      } else if(M == '平日（前泊移動）') {
-        setColor('AA21', "yellow"); // 「前泊あり」塗り潰す。
-        setColor('P23', "yellow");  // 「平日」塗り潰す。
-      } else if(M == '休日（当日移動）') {
-        setColor('AG21', "yellow"); // 「当日移動」塗り潰す。
-        setColor('S23', "yellow");  // 「休日」塗り潰す。
-      } else if(M == '平日（当日移動）') {
-        setColor('AG21', "yellow"); // 「当日移動」塗り潰す。
-        setColor('P23', "yellow");  // 「平日」塗り潰す。
-      }
+      whitePoints = [
+        { date:  N, point: 'W23' },
+        { data:  O, point: 'Z23' },
+        { data: AI, point: 'W25' },
+        { data: AL, point: 'Z25' }
+      ];
+      setDaysAndPeoples(whitePoints);
+      
+      setColorBox = ['AA21', 'AG21', 'S23', 'P23'];
+      setColorYellow(M, setColorBox);
       
     } else if(I == '作業のみ') {
       setColor('P30', "yellow");    // セル「作業のみ」を黄色で塗り潰す。
-      setSS('W23', N);           // 作業日数
-      setSS('Z23', O);           // 作業人数
-      setSS('W25', AI);          // 立会日数
-      setSS('Z25', AL);          // 立会人数
       
-      if(M == '休日（前泊移動）') {
-        setColor('AA30', "yellow"); // 「前泊あり」塗り潰す。
-        setColor('S32', "yellow");  // 「休日」塗り潰す。
-      } else if(M == '平日（前泊移動）') {
-        setColor('AA30', "yellow"); // 「前泊あり」塗り潰す。
-        setColor('P32', "yellow");  // 「平日」塗り潰す。
-      } else if(M == '休日（当日移動）') {
-        setColor('AG30', "yellow"); // 「当日移動」塗り潰す。
-        setColor('S32', "yellow");  // 「休日」塗り潰す。
-      } else if(M == '平日（当日移動）') {
-        setColor('AG30', "yellow"); // 「当日移動」塗り潰す。
-        setColor('P32', "yellow");  // 「平日」塗り潰す。
-      }
+      whitePoints = [
+        { date:  N, point: 'W23' },
+        { data:  O, point: 'Z23' },
+        { data: AI, point: 'W25' },
+        { data: AL, point: 'Z25' }
+      ];
+      setDaysAndPeoples(whitePoints);
+      
+      setColorBox = ['AA30', 'AG30', 'S32', 'P32'];
+      setColorYellow(M, setColorBox);
+
     }
     
     
@@ -259,46 +250,33 @@ function test() {
     } else if(U == '部品と作業') {
       setColor('P21', "yellow"); // セル「部品と作業」を黄色で塗り潰す。
       setColor('S25', "yellow"); //  立会「平日」塗り潰す。
-      setSS('W23', Z);        // 作業日数
-      setSS('Z23', AA);       // 作業人数
-      setSS('W25', AJ);       // 立会日数
-      setSS('Z25', AK);       // 立会人数
       
-      if(Y == '休日（前泊移動）') {
-        setColor('AA21', "yellow"); // 「前泊あり」塗り潰す。
-        setColor('S23', "yellow");  // 「休日」塗り潰す。
-      } else if(Y == '平日（前泊移動）') {
-        setColor('AA21', "yellow"); // 「前泊あり」塗り潰す。
-        setColor('P23', "yellow");  // 「平日」塗り潰す。
-      } else if(Y == '休日（当日移動）') {
-        setColor('AG21', "yellow"); // 「当日移動」塗り潰す。
-        setColor('S23', "yellow");  // 「休日」塗り潰す。
-      } else if(Y == '平日（当日移動）') {
-        setColor('AG21', "yellow"); // 「当日移動」塗り潰す。
-        setColor('P23', "yellow");  // 「平日」塗り潰す。
-      }
+      whitePoints = [
+        { date:  Z, point: 'W23' },
+        { data: AA, point: 'Z23' },
+        { data: AJ, point: 'W25' },
+        { data: AK, point: 'Z25' }
+      ];
+      setDaysAndPeoples(whitePoints);
+      
+      setColorBox = ['AA21', 'AG21', 'S23', 'P23'];
+      setColorYellow(Y, setColorBox);
       
     } else {
       setColor('P30', "yellow");    // セル「作業のみ」を黄色で塗り潰す。
       setColor('S35', "yellow");    // 立会「平日」塗り潰す。
-      setSS('W32', Z);           // 作業日数
-      setSS('Z32', AA);          // 作業人数
-      setSS('W35', AJ);          // 立会日数
-      setSS('Z35', AK);          // 立会人数
+                  
+      whitePoints = [
+        { date:  Z, point: 'W32' },
+        { data: AA, point: 'Z32' },
+        { data: AJ, point: 'W35' },
+        { data: AK, point: 'Z35' }
+      ];
+      setDaysAndPeoples(whitePoints);
       
-      if(Y == '休日（前泊移動）') {
-        setColor('AA30', "yellow"); // 「前泊あり」塗り潰す。
-        setColor('S32', "yellow");  // 「休日」塗り潰す。
-      } else if(Y == '平日（前泊移動）') {
-        setColor('AA30', "yellow"); // 「前泊あり」塗り潰す。
-        setColor('P32', "yellow");  // 「平日」塗り潰す。
-      } else if(Y == '休日（当日移動）') {
-        setColor('AG30', "yellow"); // 「当日移動」塗り潰す。
-        setColor('S32', "yellow");   // 「休日」塗り潰す。
-      } else if(Y == '平日（当日移動）') {
-        setColor('AG30', "yellow"); // 「当日移動」塗り潰す。
-        setColor('P32', "yellow");  // 「平日」塗り潰す。
-      }
+      setColorBox  = ['AA30', 'AG30', 'S32', 'P32'];
+      setColorYellow(Y, setColorBox);
+
     }
     
     // 部品発送方法の処理
@@ -312,8 +290,34 @@ function test() {
     if(AC == '必要') {
       setColor('Y13', "yellow"); // 必要
     } 
-  } 
+  }
   
+  
+  
+  // 色を塗り潰す関数
+  function setColorYellow(day, fillPoint) {
+    if(day == '休日（前泊移動）') {
+      setColor(fillPoint[0], "yellow");
+      setColor(fillPoint[2], "yellow");
+    } else if(M == '平日（前泊移動）') {
+      setColor(fillPoint[0], "yellow");
+      setColor(fillPoint[3], "yellow");
+    } else if(M == '休日（当日移動）') {
+      setColor(fillPoint[1], "yellow");
+      setColor(fillPoint[2], "yellow");
+    } else if(M == '平日（当日移動）') {
+      setColor(fillPoint[1], "yellow");
+      setColor(fillPoint[3], "yellow");
+    }    
+  }
+
+
+  // 作業・立会い（日数・人数）を書込む関数
+  function setDaysAndPeoples(whitePoints) {
+    whitePoints.forEach( el => {
+      setSS(el.data, el.point);                    
+    });    
+  }
   
 // pdf作成
   SpreadsheetApp.flush();
@@ -324,7 +328,7 @@ function test() {
       'Authorization': 'Bearer '+token
     }
   });
-  const blob = response.getBlob().setName(now + '_' + C + '_' + 'iパーツ依頼書.pdf');  // pdfの名前
+  const blob = response.getBlob().setName(now + '_' + C + '_' + 'iパーツ依頼書.pdf');       // pdfの名前
   const folder = DriveApp.getFolderById('1mJKjawfQUio1ZEDsFq7re-t5cwm3xfyK');            // pdfの保存先フォルダを指定
   const requestForm = folder.createFile(blob);                                           // フォルダ内にiパーツ依頼書を作成
     
@@ -339,7 +343,7 @@ function test() {
       const root = DriveApp.getRootFolder().getFiles();
       while(root.hasNext()) {
         const rootFile = root.next();
-        DriveApp.getRootFolder().removeFile(rootFile);
+        rootFile.setTrashed(true);
       }      
     } else {
       fileIds = [];
@@ -375,7 +379,7 @@ function test() {
   if(namesNumber !== -1) {
     const selectedAdress = namesTrans[1][namesNumber];
   } else {
-    const selectedAdress = 'k.kamikura@isowa.co.jp';
+//    const selectedAdress = 'k.kamikura@isowa.co.jp';
   }
   
   
@@ -387,7 +391,7 @@ function test() {
 
   // アドレス名が入っていたら実行する。
   if(opNames !== '') {
-    var op = opNames.split(",");      // アドレスを個別に分割（アドレスの数を取得するため）
+    const op = opNames.split(",");      // アドレスを個別に分割（アドレスの数を取得するため）
 
     for(i = 0; i < op.length; i++){   // アドレスの数だけループして一致した番号を返す。
       let opName = opNames.split(", ")[i];
@@ -404,16 +408,16 @@ function test() {
         }
       //一致した番号が無ければ実行する。
       } else {
-        opAdress = 'k.kamikura@isowa.co.jp';
+//        opAdress = 'k.kamikura@isowa.co.jp';
       }
     }
   // アドレス名が入ってなければ実行する。  
     } else {
-      let opAdress = 'k.kamikura@isowa.co.jp';
+//      let opAdress = 'k.kamikura@isowa.co.jp';
     }
 
 // 送信先、タイトル、本文  
-  const to = 'k-m.natural-h-style@docomo.ne.jp';
+  const to = 'k.kamikura@gmail.com';
   const subject = '【依頼】iパーツ依頼書 ${D} ${G}'
                   .replace('${D}', D)
                   .replace('${G}', G);

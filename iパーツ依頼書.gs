@@ -1,5 +1,5 @@
 function getInfo() {
-
+  
 // ======================  スプレットシートを取得  ============================= //
   
   // スプレットシートの情報を取得する。
@@ -26,6 +26,7 @@ function getInfo() {
   var H = sheetForm.getRange(lastRow, 8).getValue();     // 依頼要旨
   var AO = sheetForm.getRange(lastRow, 41).getValue();   // 添付ファイル
   var AQ = sheetForm.getRange(lastRow, 43).getValue();   // 送信アドレス(cc)
+
   // 見積もり依頼
   var I = sheetForm.getRange(lastRow, 9).getValue();     // 依頼種類
   var J = sheetForm.getRange(lastRow,10).getValue();     // 依頼内容
@@ -39,6 +40,7 @@ function getInfo() {
   var O = sheetForm.getRange(lastRow,15).getValue();     // 作業人数
   var AI = sheetForm.getRange(lastRow,35).getValue();    // 立会い日数
   var AL = sheetForm.getRange(lastRow,38).getValue();    // 立会い人数
+  var AS = sheetForm.getRange(lastRow,45).getValue();   // お客様の状況
   
   // 部品手配依頼
   var P = sheetForm.getRange(lastRow,16).getValue();     // 依頼内容
@@ -49,6 +51,8 @@ function getInfo() {
   var R = sheetForm.getRange(lastRow,18).getValue();     // 発送方法
   var S = sheetForm.getRange(lastRow,19).getValue();     // 事前連絡
   var T = sheetForm.getRange(lastRow,20).getValue();     // 見積もり番号
+  var AT = sheetForm.getRange(lastRow,46).getValue();    // お客様の状況
+  
   // 見積もり＋部品手配依頼
   var U = sheetForm.getRange(lastRow,21).getValue();     // 依頼種類
   var V = sheetForm.getRange(lastRow,22).getValue();     // 依頼内容
@@ -69,6 +73,7 @@ function getInfo() {
   var AD = sheetForm.getRange(lastRow,30).getValue();    // 見積もり番号
   var AJ = sheetForm.getRange(lastRow,36).getValue();    // 立会い日数
   var AK = sheetForm.getRange(lastRow,37).getValue();    // 立会い人数
+  var AU = sheetForm.getRange(lastRow,47).getValue();    // お客様の状況
   
   // 事後見積もり、作成済み見積もり提出依頼
   var AE = sheetForm.getRange(lastRow,31).getValue();    // 作業費
@@ -78,6 +83,9 @@ function getInfo() {
   var AM = sheetForm.getRange(lastRow,39).getValue();    // 備考欄 (事後見積もり）
   var AN = sheetForm.getRange(lastRow,40).getValue();    // 備考欄 (作成済み見積もりの確認と提出依頼）
   
+  // その他
+  var AV = sheetForm.getRange(lastRow,48).getValue();    // 依頼内容
+
   
   // 変数を設定
   var checkMark = '✔';
@@ -119,6 +127,7 @@ function getInfo() {
     setSheetForm.getRange('H32').setValue(AH); // ブリッジ番号（事後見積もり）
     setSheetForm.getRange('G37').setValue(AF); // 見積もり番号（作成済み見積もりの提出）
     setSheetForm.getRange('B40').setValue(J);  // 依頼内容
+    setSheetForm.getRange('I51').setValue(AS); // お客様の状況
     
     // 依頼種類の処理
     if(I == '部品のみ') {
@@ -194,7 +203,8 @@ function getInfo() {
     var cell = setSheetForm.getRange('L3').setBackground("yellow"); // セル「発注」を黄色で塗り潰す。
     setSheetForm.getRange('I13').setValue(Q);                       // 納期希望日
     setSheetForm.getRange('AG13').setValue(T);                      // 見積もり番号
-    setSheetForm.getRange('B40').setValue(P);                       // 依頼内容    
+    setSheetForm.getRange('B40').setValue(P);                       // 依頼内容
+    setSheetForm.getRange('I51').setValue(AT);                      // お客様の状況    
     
     // 部品発送方法の処理
     if(R == '直送') {
@@ -222,6 +232,7 @@ function getInfo() {
     setSheetForm.getRange('Q16').setValue(X);            // 受注予想確率
     setSheetForm.getRange('AG13').setValue(AD);          // 見積もり番号
     setSheetForm.getRange('B40').setValue(V);            // 依頼内容
+    setSheetForm.getRange('I51').setValue(AU);           // お客様の状況
     
     // 依頼種類による処理
     if(U == '部品のみ') {
@@ -295,8 +306,14 @@ function getInfo() {
     // 事前連絡の有無の処理
     if(AC == '必要') {
       setSheetForm.getRange('Y13').setBackground("yellow"); // 必要
-    } 
-  } 
+    }
+    
+  // その他の処理 
+  } else if(H == 'その他') {
+    setSheetForm.getRange('V3').setBackground("yellow"); // 「その他」塗り潰す。
+    setSheetForm.getRange('B40').setValue(AV);           // 依頼内容  
+  }
+  
   
 // *********  pdfファイルを出力  ********** // 
   
@@ -336,7 +353,8 @@ function getInfo() {
     var root = DriveApp.getRootFolder().getFiles();
     while(root.hasNext()) {
       var rootFile = root.next();
-      DriveApp.getRootFolder().removeFile(rootFile);
+        rootFile.setTrashed(true);
+//      DriveApp.getRootFolder().removeFile(rootFile);
     }      
   } else {
     var fileIds = [];
